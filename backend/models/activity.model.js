@@ -1,5 +1,6 @@
-const mongoose = require('mongoose');
+// ActivityModel.js
 
+const mongoose = require('mongoose');
 const ActivitySchema = new mongoose.Schema({
     board:{
         type: mongoose.Schema.Types.ObjectId,
