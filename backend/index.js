@@ -1,18 +1,21 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const mongoose = require('mongoose');
+
 
 dotenv.config();
 const app = express();
-const port = process.env.PORT || 4000;
 
-const mongo_url = process.env.MONGO_URL;
-mongoose.connect(mongo_url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
-.then(()=> console.log(`Mongodb Connected `))
-.catch(err =>console.error("Mongodb Connection error:",err));
+// PORT 
+const port = process.env.PORT || 4000;
+const connectDB = require('./src/config/db.config');
+
+connectDB();
+app.use(cors({ origin: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+require('./src/routes/routes')(app);
+
 
 app.listen(port,()=>{
     console.log(`Server running on ${port}`);
