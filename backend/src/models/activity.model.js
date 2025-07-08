@@ -1,6 +1,7 @@
-// ActivityModel.js
-
+// Activity Model.js
+ 
 const mongoose = require('mongoose');
+
 const ActivitySchema = new mongoose.Schema({
     board:{
         type: mongoose.Schema.Types.ObjectId,
@@ -10,7 +11,7 @@ const ActivitySchema = new mongoose.Schema({
     user:{
         type: mongoose.Schema.Types.ObjectId,
         ref:'User',
-        required: true
+        required:true
     },
     action:{
         type: String
@@ -21,7 +22,7 @@ const ActivitySchema = new mongoose.Schema({
         required: false
     },
 },
-    {timeStamps: true}
+    { timeStamps: true }
 );
 
 module.exports = mongoose.model('Activity', ActivitySchema);

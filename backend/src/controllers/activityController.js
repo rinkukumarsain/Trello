@@ -6,7 +6,7 @@ exports.createActivity = async (req, res) => {
     const result = await services.createActivity(req);
     res.status(201).json(result);
   } catch (error) {
-    res.status(500).json({
+   return({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message
@@ -19,7 +19,7 @@ exports.viewActivity = async (req, res) => {
     const result = await services.viewActivity(req);
     res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({
+   return({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message

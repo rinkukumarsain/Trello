@@ -27,7 +27,7 @@ exports.viewList = async (req, res) => {
   }
 };
 
-exports.viewBoard = async (req, res) => {
+exports.Board = async (req, res) => {
   try {
     const result = await services.viewBoard(req);
     res.status(200).json(result);

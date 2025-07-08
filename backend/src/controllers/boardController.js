@@ -6,7 +6,7 @@ exports.viewBoard = async (req, res) => {
     const result = await services.viewBoard(req);
     res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({
+   return({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message,
@@ -19,7 +19,7 @@ exports.allBoard = async (req, res) => {
     const result = await services.allBoard(req);
     res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({
+   return({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message,
@@ -32,7 +32,7 @@ exports.updateBoard = async (req, res) => {
     const result = await services.updateBoard(req);
     res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({
+   return({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message,
@@ -45,7 +45,7 @@ exports.deleteBoard = async (req, res) => {
     const result = await services.deleteBoard(req);
     res.status(200).json(result);
   } catch (error) {
-    res.status(500).json({
+   return({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message,
