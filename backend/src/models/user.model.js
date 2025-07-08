@@ -2,10 +2,15 @@
 const { mongoose } = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
-   name:{
+   first_name:{
     type: String,
     required:true,
     trim: true,
+   },
+   last_name:{
+   type: String,
+   required: true,
+   trim: true,
    },
    email:{
     type:String,
@@ -21,10 +26,14 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: null
    },
+   status:{
+    type: String
+   },
    boards:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'Boards'
 }],
+
   role:{
     type: String,
     enum:['admin', 'member'],
