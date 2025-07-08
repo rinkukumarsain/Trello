@@ -8,7 +8,6 @@
     "NOT_FOUND": 404,
     "ACCESS_DENIED": 403
     },
-    "userV1Prefix": "/user/v1",
     "bcrypt":{
         "saltRounds":10
     }

@@ -1,50 +1,54 @@
 const services = require('../services/boardService');
+const { statusCode } = require('../../config/default.json');
 
-exports.viewBoard = async(req) => {
-    try{
-    await services.viewBoard(req);
-}
-catch(error){
-    return{
-        statusCode: statusCode.INTERNAL_SERVER_ERROR,
-        success: false,
-        message:error.message
-    }
-}
-}
-exports.allBoard = async(req) => {
-    try{
-    await services.allBoard(req);
-}
-catch(error){
-    return{
-        statusCode: statusCode.INTERNAL_SERVER_ERROR,
-        success: false,
-        message:error.message
-    }
-}
-}
-exports.updateBoard = async(req) => {
-    try{
-    await services.updateBoard(req);
-}
-catch(error){
-    return{
-        statusCode: statusCode.INTERNAL_SERVER_ERROR,
-        success: false,
-        message:error.message
-    }
-}
-}
-exports.deleteBoard = async(req) => {
-    try{
-    await services.deleteBoard(req);
-}
-catch(error){
-    return{
-        statusCode: statusCode.INTERNAL_SERVER_ERROR,
-        success: false,
-        message:error.message
-    }
-}
-}
+exports.viewBoard = async (req, res) => {
+  try {
+    const result = await services.viewBoard(req);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.allBoard = async (req, res) => {
+  try {
+    const result = await services.allBoard(req);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.updateBoard = async (req, res) => {
+  try {
+    const result = await services.updateBoard(req);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.deleteBoard = async (req, res) => {
+  try {
+    const result = await services.deleteBoard(req);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+    });
+  }
+};

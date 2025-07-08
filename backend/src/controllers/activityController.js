@@ -1,27 +1,28 @@
 const services = require('../services/activityService');
+const { statusCode } = require('../../config/default.json');
 
-exports.createActivity = async(req) => {
-    try{
-    await services.createActivity(req);
-}
-catch(error){
-    return{
-        statusCode: statusCode.INTERNAL_SERVER_ERROR,
-        success: false,
-        message:error.message
-    }
-}
-}
+exports.createActivity = async (req, res) => {
+  try {
+    const result = await services.createActivity(req);
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(500).json({
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message
+    });
+  }
+};
 
-exports.viewActivity = async(req) => {
-    try{
-    await services.viewActivity(req);
-}
-catch(error){
-    return{
-        statusCode: statusCode.INTERNAL_SERVER_ERROR,
-        success: false,
-        message:error.message
-    }
-}
-}
+exports.viewActivity = async (req, res) => {
+  try {
+    const result = await services.viewActivity(req);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message
+    });
+  }
+};

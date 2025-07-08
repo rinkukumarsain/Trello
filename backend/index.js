@@ -7,14 +7,15 @@ const app = express();
 
 // PORT 
 const port = process.env.PORT || 4000;
-const connectDB = require('./src/config/db.config');
+const connectDB = require('./config/db.config');
 
-connectDB();
+connectDB()
 app.use(cors({ origin: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-require('./src/routes/routes')(app);
+const routes = require('./src/routes/routes'); 
+app.use('/api', routes); 
 
 
 app.listen(port,()=>{

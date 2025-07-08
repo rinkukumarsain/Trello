@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { statusCode, resMessage} = require('../config/default.json')
-
+const { statusCode, resMessage} = require('../../config/default.json')
 exports.verifyToken = async(req, res, next) => {
     try{
         const token = req.headers.authorization?.split('.')[1];
