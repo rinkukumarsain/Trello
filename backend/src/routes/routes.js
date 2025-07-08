@@ -10,7 +10,7 @@ const cardController = require('../controllers/cardController');
 
 // User routes
 router.post('/users', userController.createUser);
-router.get('/users', userController.viewAllUser); // ✅ fixed from viewAllUsers
+router.get('/users', userController.viewAllUser); 
 router.get('/users/:id', userController.viewUserById);
 
 // Board routes
@@ -21,7 +21,7 @@ router.delete('/board/:boardId', boardController.deleteBoard);
 
 // List routes
 router.post('/lists', listController.createList);
-router.get('/lists', listController.viewList); // ✅ removed extra slash
+router.get('/lists', listController.viewList); 
 router.get('/lists/:boardId', listController.viewBoard);
 router.put('/lists/:listId', listController.updateList);
 router.delete('/lists/:listId', listController.deleteList);
