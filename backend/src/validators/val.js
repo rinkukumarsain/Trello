@@ -1,7 +1,5 @@
 const { Joi } = require('express-validation');
 
-// Validators
-
 exports.createBoard = {
     body: Joi.object({
         title: Joi.string().required(),

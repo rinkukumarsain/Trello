@@ -7,7 +7,7 @@ const app = express();
 
 // PORT 
 const port = process.env.PORT || 4000;
-const connectDB = require('./config/db.config');
+const connectDB = require('./src/config/db.config');
 
 connectDB()
 app.use(cors({ origin: true }));

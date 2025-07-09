@@ -38,11 +38,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: "active",
   },
-  boards: [
+  board: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Board",
-     
+      ref: "Board",    
     }
   ],
   role: {
@@ -63,25 +62,12 @@ const UserSchema = new mongoose.Schema({
 });
 
 //  Hash password before saving
-UserSchema.pre('save', function(next){
-  var user = this;
-  if(!user.isModified('password')) return next();
-  
-  bcrypt.genSalt(10, function(err, salt) {
-    if(err) return next(err);
-    bcrypt.hash(user.password, salt,function(err, hash){
-      if(err) return next(err);
 
-      user.password = hash;
-      next();
-    });
-  });
+UserSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
-
-// Add method to compare password
-UserSchema.methods.comparePassword = function (enteredPassword) {
-  return bcrypt.compare(enteredPassword, this.password);
-};
-
 
 module.exports = mongoose.model('User', UserSchema);

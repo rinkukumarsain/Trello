@@ -1,5 +1,5 @@
 const services = require('../services/cardService');
-const { statusCode } = require('../../config/default.json');
+const { statusCode } = require('../config/default.json');
 
 exports.viewCard = async (req, res) => {
   try {

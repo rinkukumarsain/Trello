@@ -1,5 +1,5 @@
 const services = require('../services/activityService');
-const { statusCode } = require('../../config/default.json');
+const { statusCode } = require('../config/default.json');
 
 exports.createActivity = async (req, res) => {
   try {

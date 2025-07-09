@@ -1,5 +1,5 @@
 const services = require('../services/boardService');
-const { statusCode } = require('../../config/default.json');
+const { statusCode } = require('../config/default.json');
 
 exports.viewBoard = async (req, res) => {
   try {
@@ -14,9 +14,9 @@ exports.viewBoard = async (req, res) => {
   }
 };
 
-exports.allBoard = async (req, res) => {
+exports.createBoard = async (req, res) => {
   try {
-    const result = await services.allBoard(req);
+    const result = await services.createBoard(req);
     res.status(200).json(result);
   } catch (error) {
    return({

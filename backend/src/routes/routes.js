@@ -2,48 +2,57 @@ const express = require('express');
 const router = express.Router();
 
 // Controllers
-const userController = require('../controllers/userController');
+
 const activityController = require('../controllers/activityController');
 const boardController = require('../controllers/boardController');
 const listController = require('../controllers/listController');
 const cardController = require('../controllers/cardController');
 const labelController = require('../controllers/labelController');
+const userController = require('../controllers/userController');
+const userDataController = require('../controllers/UserDataController');
+
 
 // Middleware
-const auth = require('../middleware/auth');
+const { auth, authorize }  = require('../middleware/auth');
 
-// ================== User Routes ==================
-router.post('/users', auth, userController.createUser);
-router.get('/users', auth, userController.viewAllUser);
-router.get('/users/:id', auth, userController.viewUserById);
 
-// ================== Board Routes ==================
-router.get('/boards', auth, boardController.viewBoard);
-router.post('/boards', auth, boardController.allBoard);
-router.put('/board/:boardId', auth, boardController.updateBoard);
-router.delete('/board/:boardId', auth, boardController.deleteBoard);
+// ========== login SignUp and Profile Route  ==========
+router.post('/login', userController.login);
+router.post('/signup',userController.signup);
+// router.get('/profile', auth,userController.profile);
 
-// ================== List Routes ==================
-router.post('/lists', auth, listController.createList);
-router.get('/lists', auth, listController.viewList);
-router.get('/lists/:boardId', auth, listController.Board);
-router.put('/lists/:listId', auth, listController.updateList);
-router.delete('/lists/:listId', auth, listController.deleteList);
 
-// ================== Card Routes ==================
-router.post('/card', auth, cardController.createCard);
-router.get('/cards/:listId', auth, cardController.viewCard);
-router.put('/cards/:cardsId', auth, cardController.updateCard);
-router.delete('/cards/:cardId', auth, cardController.deleteCard);
+// ========== User Routes ==========
+router.get('/user', auth, authorize('user', 'view'), userDataController.viewAllUser);
+router.get('/user/:id', auth, authorize('user', 'view'), userDataController.viewUserById);
 
-// ================== Activity Routes ==================
-router.post('/activities', auth, activityController.createActivity);
-router.get('/activities/:boardId', auth, activityController.viewActivity);
+// ========== Board Routes ==========
+router.get('/board', auth, authorize('board', 'view'), boardController.viewBoard);
+router.post('/board', auth, authorize('board', 'create'), boardController.createBoard);
+router.put('/board/:id', auth, authorize('board', 'update'), boardController.updateBoard);
+router.delete('/board/:id', auth, authorize('board', 'delete'), boardController.deleteBoard);
 
-// ================== Label Routes ==================
-router.post('/label', auth, labelController.createLabel);
-router.get('/label/:boardId', auth, labelController.getLabelByBoard);
-router.put('/label/:labelId', auth, labelController.updateLabel);
-router.delete('/label/:labelId', auth, labelController.deleteLabel);
+// ========== List Routes ==========
+router.post('/list', auth, authorize('list', 'create'), listController.createList);
+router.get('/list', auth, authorize('list', 'view'), listController.viewList);
+router.get('/list/:boardId', auth, authorize('list', 'view'), listController.Board);
+router.put('/list/:id', auth, authorize('list', 'update'), listController.updateList);
+router.delete('/list/:id', auth, authorize('list', 'delete'), listController.deleteList);
+
+// ========== Card Routes ==========
+router.post('/card', auth, authorize('card', 'create'), cardController.createCard);
+router.get('/card/:listId', auth, authorize('card', 'view'), cardController.viewCard);
+router.put('/card/:id', auth, authorize('card', 'update'), cardController.updateCard);
+router.delete('/card/:id', auth, authorize('card', 'delete'), cardController.deleteCard);
+
+// ========== Activity Routes ==========
+router.post('/activity', auth, authorize('activity', 'create'), activityController.createActivity);
+router.get('/activity/:boardId', auth, authorize('activity', 'view'), activityController.viewActivity);
+
+// ========== Label Routes ==========
+router.post('/label', auth, authorize('label', 'create'), labelController.createLabel);
+router.get('/label/:boardId', auth, authorize('label', 'view'), labelController.getLabelByBoard);
+router.put('/label/:id', auth, authorize('label', 'update'), labelController.updateLabel);
+router.delete('/label/:id', auth, authorize('label', 'delete'), labelController.deleteLabel);
 
 module.exports = router;

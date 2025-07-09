@@ -1,5 +1,5 @@
 const services = require('../services/listService');
-const { statusCode } = require('../../config/default.json');
+const { statusCode } = require('../config/default.json');
 
 exports.createList = async (req, res) => {
   try {
