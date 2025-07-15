@@ -6,8 +6,6 @@ const JWT_SECRET = process.env.SECRET_KEY;
 
 exports.signup = async (req, res) => {
   try {
-    console.log("req", req.body); 
-
     const { first_name, last_name, email, password, role } = req.body;
 
     const existingUser = await User.findOne({ email });
@@ -28,17 +26,34 @@ exports.signup = async (req, res) => {
 
     await newUser.save();
 
+    // Use aggregation to get user with only board _ids
+    const userWithBoardIds = await User.aggregate([
+      { $match: { _id: newUser._id } },
+      {
+        $lookup: {
+          from: "boards", // collection name
+          localField: "board",
+          foreignField: "_id",
+          as: "boards"
+        }
+      },
+      {
+        $project: {
+          first_name: 1,
+          last_name: 1,
+          email: 1,
+          role: 1,
+          boards: { $map: { input: "$boards", as: "b", in: "$$b._id" } } // Only board _ids
+        }
+      }
+    ]);
+
     res.status(201).json({
       success: true,
       message: "User registered successfully",
-      user: {
-        _id: newUser._id,
-        first_name: newUser.first_name,
-        last_name: newUser.last_name,
-        email: newUser.email,
-        role: newUser.role,
-      },
+      user: userWithBoardIds[0] || {},
     });
+
   } catch (error) {
     res.status(500).json({
       success: false,

@@ -71,14 +71,6 @@ exports.authorize = (allowedRoles = []) => (req, res, next) => {
 };
 
 
-
-
-
-
-
-
-
-
 // const jwt = require('jsonwebtoken');
 // const { statusCode, resMessage } = require('../../config/default.json');
 
