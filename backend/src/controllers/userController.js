@@ -6,6 +6,8 @@ const JWT_SECRET = process.env.SECRET_KEY;
 
 exports.signup = async (req, res) => {
   try {
+    console.log("req", req.body); 
+
     const { first_name, last_name, email, password, role } = req.body;
 
     const existingUser = await User.findOne({ email });
@@ -21,7 +23,7 @@ exports.signup = async (req, res) => {
       last_name,
       email,
       password,
-      role: role || "member", // fallback to "member"
+      role: role || "member"
     });
 
     await newUser.save();
@@ -45,6 +47,7 @@ exports.signup = async (req, res) => {
     });
   }
 };
+
 
 exports.login = async (req, res) => {
   try {
