@@ -28,7 +28,7 @@ router.get('/user/:id', auth, authorize('user', 'view'), userDataController.view
 
 // ========== Board Routes ==========
 router.get('/board', auth, authorize('board', 'view'), boardController.viewBoard);
-router.post('/board', auth, authorize(['admin','create']), boardController.createBoard);
+router.post('/board', auth, authorize('board', 'create'), boardController.createBoard);
 router.put('/board/:id', auth, authorize('board', 'update'), boardController.updateBoard);
 router.delete('/board/:id', auth, authorize('board', 'delete'), boardController.deleteBoard);
 
