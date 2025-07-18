@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Image from "../assets/background.avif";
+import Image from "../assets/background.jpg";
+import trello from "../assets/trello.png";
+// import BoardImagePattern from './BoardImagePattern.jsx';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -18,10 +20,12 @@ const Login = () => {
 
     try {
       const response = await axios.post('http://localhost:4000/api/login', formData);
+      console.log(response,"shkdhsla");
       if (response.data && response.data.token) {
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        navigate('/');
+        navigate('/board');
+
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
@@ -34,55 +38,59 @@ const Login = () => {
 
   return (
     <div
-      className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center relative"
+      className="min-h-screen w-full bg-cover bg-center bg-no-repeat flex items-center justify-center"
       style={{ backgroundImage: `url(${Image})` }}
     >
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40 z-0"></div>
+      <div className="flex w-full max-w-6xl bg-transparent bg-opacity-0  shadow-2xl rounded-2xl overflow-hidden">
+        {/* Left side: Login Form */}
+        <div className="w-full lg:w-1/2 p-10">
+          <h2 className="text-3xl font-bold mb-6 text-center">Welcome Back</h2>
+          {error && (
+            <p className="text-red-600 text-center mb-4">{error}</p>
+          )}
 
-      {/* Form */}
-      <form
-        onSubmit={handleSubmit}
-        className="relative z-10 animate-fadeIn bg-blur backdrop-blur-xl p-8 rounded-2xl shadow-2xl w-full max-w-md transition-transform transform hover:scale-[1.01]"
-      >
-        <h2 className="text-3xl text-italic text-blue-300 font-extrabold mb-6 text-center  drop-shadow">Login</h2>
+          <form onSubmit={handleSubmit}>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              className="w-full mb-4 px-2 py-2 border placeholder:text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
 
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              className="w-full mb-6 px-2 py-2 border placeholder:text-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
 
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="w-full mb-4 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            >
+              Login
+            </button>
+          </form>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="w-full mb-4 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
+          <p
+            onClick={goToSignup}
+            className="text-blue-500 underline mt-5 text-center cursor-pointer hover:text-blue-700"
+          >
+            Don’t have an account? Create your account
+          </p>
+        </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 hover:scale-105 transition-transform duration-200"
-        >
-          Login
-        </button>
-
-        <h2
-          onClick={goToSignup}
-          className="text-white underline mt-5 text-center cursor-pointer hover:text-blue-300 transition"
-        >
-          Don’t have an account? Create your account
-        </h2>
-      </form>
+        {/* Right side: Animated Board Pattern */}
+        <div className="hidden lg:block lg:w-1/2">
+          <img src={trello} />
+        </div>
+      </div>
     </div>
   );
 };
