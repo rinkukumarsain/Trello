@@ -8,12 +8,6 @@ const BoardSchema = new mongoose.Schema({
     trim: true,
     // Board title (e.g., "Sprint Planning")
   },
-  description: {
-    type: String,
-    default: '',
-    trim: true,
-    // Optional board description
-  },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

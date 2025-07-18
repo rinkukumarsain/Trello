@@ -1,8 +1,9 @@
 const services = require('../services/listService');
 const { statusCode } = require('../config/default.json');
-
+const viewBoard = require('../services/boardService')
 exports.createList = async (req, res) => {
   try {
+    
     const result = await services.createList(req);
     res.status(200).json(result);
   } catch (error) {

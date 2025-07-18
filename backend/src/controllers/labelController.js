@@ -1,58 +1,58 @@
-const services = require('../services/labelService')
+const services = require('../services/labelService');
 const { statusCode } = require('../config/default.json');
 
-
-exports.createLabel = async (req) => {
+// Create Label
+exports.createLabel = async (req, res) => {
   try {
     const result = await services.createLabel(req);
     res.status(200).json(result);
   } catch (error) {
-  return({
+    res.status(500).json({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message,
     });
   }
 };
-exports.getLabelByBoard = async(req) => {
-  try{
-    const result = await services.getLabel(req);
+
+// Get Labels by Board ID
+exports.getLabelByBoard = async (req, res) => {
+  try {
+    const result = await services.getLabelByBoard(req);
     res.status(200).json(result);
-  }
-  catch(error){
-  return({
+  } catch (error) {
+    res.status(500).json({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
 
-exports.updateLabel = async(req) => {
-  try{
+// Update Label
+exports.updateLabel = async (req, res) => {
+  try {
     const result = await services.updateLabel(req);
     res.status(200).json(result);
-  }
-  catch(error){
-  return({
+  } catch (error) {
+    res.status(500).json({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
 
-exports.deleteLabel = async(req)=>{
-  try{
+// Delete Label
+exports.deleteLabel = async (req, res) => {
+  try {
     const result = await services.deleteLabel(req);
     res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+    });
   }
-  catch(error){
-    return({
-    statusCode: statusCode.INTERNAL_SERVER_ERROR,
-    success: false,
-    message: error
-    })
-  }
-
-}
+};

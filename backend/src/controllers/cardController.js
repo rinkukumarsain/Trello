@@ -1,12 +1,13 @@
 const services = require('../services/cardService');
 const { statusCode } = require('../config/default.json');
 
+// View Cards
 exports.viewCard = async (req, res) => {
   try {
     const result = await services.viewCard(req);
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
-return({
+    return res.status(500).json({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message,
@@ -14,12 +15,13 @@ return({
   }
 };
 
+// Create Card
 exports.createCard = async (req, res) => {
   try {
-    const result = await services.create(req); 
-    res.status(200).json(result);
+    const result = await services.createCard(req); 
+    return res.status(200).json(result);
   } catch (error) {
-return({
+    return res.status(500).json({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message,
@@ -27,12 +29,13 @@ return({
   }
 };
 
+// Update Card
 exports.updateCard = async (req, res) => {
   try {
     const result = await services.updateCard(req);
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
-return({
+    return res.status(500).json({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message,
@@ -40,12 +43,13 @@ return({
   }
 };
 
+// Delete Card
 exports.deleteCard = async (req, res) => {
   try {
     const result = await services.deleteCard(req);
-    res.status(200).json(result);
+    return res.status(200).json(result);
   } catch (error) {
-return({
+    return res.status(500).json({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message,

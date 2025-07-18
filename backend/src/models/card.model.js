@@ -1,24 +1,6 @@
 // Card Model.js
 const mongoose = require('mongoose');
 
-const CommentSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true, // ensure traceability
-  },
-  text: {
-    type: String,
-    required: true, // avoid storing empty comments
-    trim: true,
-  },
-  created_at: {
-    type: Date,
-    default: Date.now,
-    // Timestamp when comment was created
-  }
-}, { _id: false });
-
 const CardSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -59,7 +41,6 @@ const CardSchema = new mongoose.Schema({
     default: null,
     // Single attachment URL (can be expanded to array if needed)
   },
-  comment: [CommentSchema], // Embedded array of comments
 
   created_by: {
     type: mongoose.Schema.Types.ObjectId,
