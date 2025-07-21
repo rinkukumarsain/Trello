@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import BoardBackground from '../../assets/board.jpg';
-import { fetchBoards, createBoard } from '../lib/board';
+import { fetchBoards, createBoard } from '../lib/api';
 import trello from '../../assets/trello.png';
+import BoardItem from "./BoardItem"
 const Board = () => {
   const [boards, setBoards] = useState([]);
   const [newTitle, setNewTitle] = useState('');
@@ -56,11 +57,11 @@ const Board = () => {
         >
           <input
             type="text"
-            placeholder="Search board title"
+            placeholder="Create board title"
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             className="w-full sm:w-1/2 px-4 py-2 border border-gray-300 text-white rounded-md shadow-sm focus:outline-none focus:ring-2
-             focus:ring-blue-500 placeholder:text-gray-500"
+             focus:ring-blue-500 placeholder:text-white"
           />
           <button
             type="submit"
@@ -70,26 +71,27 @@ const Board = () => {
             {createLoading ? 'Creating...' : 'Create Board'}
           </button>
         </form>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {boards.length > 0 ? (
+             boards.map((board) => (
+          <BoardItem
+          key={board._id}
+          board={board}
+          onUpdate={(id, newTitle) => {
+          setBoards(prev =>
+            prev.map(b => (b._id === id ? { ...b, title: newTitle } : b))
+          );
+        }}
+          onDelete={(id) => {
+          setBoards(prev => prev.filter(b => b._id !== id));
+        }}
+      />
+    ))
+  ) : (
+      <p className="col-span-full text-center text-white">No boards found.</p>
+    )}
+      </div>
 
-        <h1 className="text-3xl font-bold mb-6 text-center text-white drop-shadow">
-          Your Boards
-        </h1>
-
-        <div className="grid grid-rows-1 sm:grid-rows-2 lg:grid-rows-3 gap-6">
-          {boards.length > 0 ? (
-            boards.map((board, index) => (
-              <div key={board._id}>
-                <h2 className="text-xl font-semibold text-gray-400 mb-2">
-                  {board.title}
-                </h2>
-              </div>
-            ))
-          ) : (
-            <p className="col-span-full text-center text-black">
-              No boards found.
-            </p>
-          )}
-        </div>
       </div>
     </div>
   );

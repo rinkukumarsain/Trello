@@ -2,7 +2,7 @@ const Board = require('../models/board.model');
 const User = require('../models/user.model');
 
 // ===== Create Board =====
-exports.createBoard = async (user, body) => {
+exports.createBoard = async (user, body, io) => {
   try {
     if (!user || user.role !== 'admin') {
       return {
@@ -10,6 +10,7 @@ exports.createBoard = async (user, body) => {
         message: 'Only admins can create boards',
       };
     }
+
     const { title, members, lists } = body;
     if (!title) {
       return {
@@ -17,6 +18,7 @@ exports.createBoard = async (user, body) => {
         message: 'Title is required',
       };
     }
+
     const newBoard = new Board({
       title,
       owner: user._id,
@@ -26,10 +28,18 @@ exports.createBoard = async (user, body) => {
 
     const savedBoard = await newBoard.save();
 
+    const populatedBoard = await savedBoard
+      .populate('owner', 'first_name last_name email')
+      .populate('members', 'first_name last_name email')
+      .populate('lists');
+
+    // 🔥 Emit to all connected clients
+    io.emit('board_created', populatedBoard);
+
     return {
       success: true,
       message: 'Board created successfully',
-      data: savedBoard,
+      data: populatedBoard,
     };
   } catch (error) {
     console.error('Service Error - createBoard:', error.message);
@@ -40,6 +50,7 @@ exports.createBoard = async (user, body) => {
     };
   }
 };
+
 
 // ===== View Boards =====
 exports.viewBoard = async (req) => {
@@ -104,25 +115,29 @@ exports.viewBoard = async (req) => {
 };
 
 // ===== Update Board =====
-exports.updateBoard = async (req) => {
-  const { boardId } = req.params;
+exports.updateBoard = async (req, io) => {
+  const { id } = req.params;
   const { title, members, lists } = req.body;
 
   const updatedBoard = await Board.findByIdAndUpdate(
-    boardId,
+    id,
     {
       ...(title && { title }),
       ...(members && { members }),
       ...(lists && { lists }),
     },
     { new: true }
-  ).populate('owner', 'first_name last_name email')
-   .populate('members', 'first_name last_name email')
-   .populate('lists');
+  )
+    .populate('owner', 'first_name last_name email')
+    .populate('members', 'first_name last_name email')
+    .populate('lists');
 
   if (!updatedBoard) {
     throw new Error('Board not found');
   }
+
+  // 🔥 Emit update to all clients
+  io.emit('board_updated', updatedBoard);
 
   return {
     success: true,
@@ -131,11 +146,13 @@ exports.updateBoard = async (req) => {
   };
 };
 
+
+
 // ===== Delete Board =====
 exports.deleteBoard = async (req) => {
-  const { boardId } = req.params;
+  const { id } = req.params;
 
-  const deleted = await Board.findByIdAndDelete(boardId);
+  const deleted = await Board.findByIdAndDelete(id);
   if (!deleted) {
     throw new Error('Board not found or already deleted');
   }

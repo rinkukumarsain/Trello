@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Image from "../assets/background.jpg";
-import BoardImagePattern from './BoardImagePattern.jsx';
-import trello from '../assets/trello.png';
+import Image from "../../assets/background.jpg";
+// import BoardImagePattern from './BoardImagePattern.jsx';
+import trello from '../../assets/trello.png';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -34,7 +34,7 @@ const Signup = () => {
 
       if (res.ok) {
         console.log('Signup successful:', data);
-        navigate('/login'); 
+        navigate('/'); 
       } else {
         console.error('Signup failed:', data.message);
         alert(data.message || 'Signup failed');

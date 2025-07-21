@@ -105,26 +105,27 @@ exports.updateList = async (id, updatedFields) => {
 
     if (!updatedList) {
       return {
-        statusCode: statusCode.NOT_FOUND,
+        statusCode: 404,
         success: false,
         message: "List not found",
       };
     }
 
     return {
-      statusCode: statusCode.OK,
+      statusCode: 200,
       success: true,
       message: "List updated successfully",
       data: updatedList,
     };
   } catch (error) {
     return {
-      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      statusCode: 500,
       success: false,
       message: error.message,
     };
   }
 };
+
 
 
 // ========== Delete List ==========
