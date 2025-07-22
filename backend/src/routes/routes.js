@@ -27,7 +27,8 @@ router.post('/signup',userController.signup);
 // router.get('/profile', auth,userController.profile);
 
 // ========== Board Routes ==========
-router.get('/board/view', auth,authorize(['admin','member']), boardController.viewBoard);
+router.get('/board/', auth,authorize(['admin','member']), boardController.viewBoard);
+router.get('/board/:id', auth,authorize(['admin','member']), boardController.getBoardById);
 router.post('/board', auth,authorize(['admin','member']),boardController.createBoard);
 router.put('/board/:id', auth,authorize(['admin','member']),boardController.updateBoard);
 router.delete('/board/:id', auth,authorize(['admin','member']), boardController.deleteBoard);

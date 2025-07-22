@@ -1,1 +1,41 @@
 @import "tailwindcss";
+.fc {
+  background-color: #1e1e2f;
+  color: #fff;
+}
+.fc-toolbar-title {
+  color: #fff;
+}
+.fc-button {
+  background-color: #2d2d44;
+  color: #fff;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.75rem;
+}
+.fc-button:hover {
+  background-color: #4b5563;
+}
+.fc-timegrid-slot-label {
+  color: #ccc;
+}
+.fc {
+  background-color: #1e1e2f;
+  color: #fff;
+}
+.fc-toolbar-title {
+  color: #fff;
+}
+.fc-button {
+  background-color: #2d2d44;
+  color: #fff;
+  border: none;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.75rem;
+}
+.fc-button:hover {
+  background-color: #4b5563;
+}
+.fc-timegrid-slot-label {
+  color: #ccc;
+}

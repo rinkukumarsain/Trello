@@ -1,92 +1,104 @@
 import React, { useEffect, useState } from 'react';
-import { fetchListsByBoard, createList } from '../lib/api';
-import { createCard } from '../lib/api';
-import { Plus, CheckCircle, Paperclip } from 'lucide-react';
+import Card from './Card';
+import {
+  fetchAllLists,
+  createCard,
+  fetchListsByBoard
+} from '../lib/api'; // update path if needed
+import { axiosInstance } from '../lib/axios';
 
-const KanbanBoard = ({ boardId }) => {
-  const [lists, setLists] = useState([]);
-  const [newListTitle, setNewListTitle] = useState('');
+const KanbanBoard = () => {
+  const [columns, setColumns] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    loadLists();
-  }, [boardId]);
+    const loadData = async () => {
+      try {
+        const listRes = await fetchAllLists();
+        const lists = listRes.data?.data || [];
 
-  const loadLists = async () => {
-    try {
-      const res = await fetchListsByBoard(boardId);
-      setLists(res.data?.data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+        const columnsData = {};
 
-  const handleAddList = async () => {
-    if (!newListTitle.trim()) return;
-    try {
-      await createList({ board: boardId, title: newListTitle });
-      setNewListTitle('');
-      loadLists();
-    } catch (err) {
-      console.error(err);
-    }
-  };
+        for (const list of lists) {
+          const cardRes = await axiosInstance.get(`/card/${list._id}`);
+          const cards = cardRes.data?.data || [];
+
+          columnsData[list._id] = {
+            title: list.title,
+            cards,
+          };
+        }
+
+        setColumns(columnsData);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const handleAddCard = async (listId) => {
-    const title = prompt('Enter card title:');
-    if (!title?.trim()) return;
+    const description = prompt('Enter card description:');
+    if (!description) return;
+
     try {
-      await createCard({ list: listId, title });
-      loadLists();
+      const res = await createCard({ list: listId, description });
+      const newCard = res.data?.data;
+
+      setColumns(prev => ({
+        ...prev,
+        [listId]: {
+          ...prev[listId],
+          cards: [...prev[listId].cards, newCard],
+        },
+      }));
     } catch (err) {
-      console.error(err);
+      alert('Error adding card: ' + err.message);
     }
   };
 
+  const handleDeleteCard = (cardId, listId) => {
+    setColumns(prev => ({
+      ...prev,
+      [listId]: {
+        ...prev[listId],
+        cards: prev[listId].cards.filter(card => card._id !== cardId),
+      },
+    }));
+  };
+
+  if (loading) return <div className="p-4">Loading...</div>;
+  if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
+
   return (
-    <div className="flex gap-4 overflow-x-auto p-4 min-h-screen" style={{ backgroundImage: `url('/path/to/bg.jpg')`, backgroundSize: 'cover' }}>
-      {lists.map((list) => (
-        <div key={list._id} className="bg-black/80 text-white rounded-xl p-3 w-72 shrink-0">
-          <div className="flex justify-between items-center mb-2 font-semibold text-lg">{list.title}</div>
-
-          {/* Cards */}
-          {list.cards?.map((card) => (
-            <div key={card._id} className="bg-[#1f1f1f] p-3 rounded-lg mb-2 border border-white/10">
-              <div className="flex items-center gap-2 mb-1">
-                <CheckCircle className="text-green-400 w-4 h-4" />
-                <p className="text-sm font-medium">{card.title}</p>
-              </div>
-              <div className="flex items-center gap-1 text-xs text-white/60 mt-1">
-                <Paperclip className="w-3 h-3" />
-                <span>{card.attachments?.length || 0}</span>
-              </div>
+    <div className="p-4 bg-gray-100 min-h-screen">
+      <h1 className="text-2xl font-bold mb-6">Kanban Board</h1>
+      <div className="flex gap-4 overflow-x-auto">
+        {Object.entries(columns).map(([listId, column]) => (
+          <div key={listId} className="bg-gray-200 rounded-lg p-4 min-w-[300px]">
+            <h2 className="text-xl font-semibold mb-4">{column.title}</h2>
+            <div className="space-y-3">
+              {column.cards.map((card) => (
+                <Card
+                  key={card._id}
+                  card={card}
+                  onDragStart={(e) => e.dataTransfer.setData('cardId', card._id)}
+                  onDelete={(id) => handleDeleteCard(id, listId)}
+                />
+              ))}
             </div>
-          ))}
-
-          {/* Add Card Button */}
-          <button
-            onClick={() => handleAddCard(list._id)}
-            className="mt-2 text-sm text-white/80 flex items-center gap-1 hover:text-white"
-          >
-            <Plus className="w-4 h-4" /> Add a card
-          </button>
-        </div>
-      ))}
-
-      {/* Add New List */}
-      <div className="bg-white/10 text-white rounded-xl p-3 w-72 shrink-0">
-        <input
-          type="text"
-          placeholder="New list title"
-          value={newListTitle}
-          onChange={(e) => setNewListTitle(e.target.value)}
-          className="w-full bg-transparent border border-white/20 p-2 rounded text-sm mb-2 placeholder-white/60"
-        />
-        <button
-          onClick={handleAddList}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-2 rounded w-full"
-        >
-          + Add List
-        </button>
+            <button
+              onClick={() => handleAddCard(listId)}
+              className="mt-4 w-full py-2 bg-gray-300 hover:bg-gray-400 rounded"
+            >
+              + Add Card
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -4,9 +4,8 @@ const viewBoard = require('../services/boardService');
 
 exports.createList = async (req, res) => {
   try {
-    
     const result = await services.createList(req);
-    res.status(200).json(result);
+    res.status(result.statusCode || 200).json(result);
   } catch (error) {
     res.status(500).json({
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
@@ -60,7 +59,7 @@ exports.updateList = async (req, res) => {
 };
 exports.deleteList = async (req, res) => {
   try {
-    const result = await services.deleteList(req);
+    const result = await services.deleteList(req.params.id);
     
     res.status(200).json(result);
   } catch (error) {

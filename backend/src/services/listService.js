@@ -6,9 +6,10 @@ const { statusCode, resMessage } = require('../config/default.json');
 // ========== Create List ==========
 exports.createList = async (req) => {
   try {
-    const { title, board, order } = req.body;
+    const { title, board, boardId, order } = req.body;
+    const actualBoardId = board || boardId; // Support both field names
 
-    if (!title || !board) {
+    if (!title || !actualBoardId) {
       return {
         statusCode: statusCode.BAD_REQUEST,
         success: false,
@@ -16,7 +17,7 @@ exports.createList = async (req) => {
       };
     }
 
-    const boardExists = await Board.findById(board);
+    const boardExists = await Board.findById(actualBoardId);
     if (!boardExists) {
       return {
         statusCode: statusCode.NOT_FOUND,
@@ -25,7 +26,7 @@ exports.createList = async (req) => {
       };
     }
 
-    const newList = new List({ title, board, order: order || 0 });
+    const newList = new List({ title, board: actualBoardId, order: order || 0 });
     const savedList = await newList.save();
 
     boardExists.lists.push(savedList._id);
@@ -46,7 +47,6 @@ exports.createList = async (req) => {
   }
 };
 
-
 // ========== View All Lists ==========
 exports.viewList = async () => {
   try {
@@ -66,8 +66,36 @@ exports.viewList = async () => {
   }
 };
 
-
 // ========== View Lists by Board ==========
+exports.viewBoard = async (req) => {
+  try {
+    const { boardId } = req.params;
+    
+    if (!boardId) {
+      return {
+        statusCode: statusCode.BAD_REQUEST,
+        success: false,
+        message: "Board ID is required",
+      };
+    }
+
+    const lists = await List.find({ board: boardId }).populate('cards').sort({ order: 1 });
+    
+    return {
+      statusCode: statusCode.OK,
+      success: true,
+      message: "Lists fetched successfully",
+      data: lists,
+    };
+  } catch (error) {
+    return {
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+    };
+  }
+};
+
 exports.getBoardWithLists = async (boardId) => {
   try {
     const board = await Board.findById(boardId).populate({
@@ -125,8 +153,6 @@ exports.updateList = async (id, updatedFields) => {
     };
   }
 };
-
-
 
 // ========== Delete List ==========
 exports.deleteList = async (id) => {

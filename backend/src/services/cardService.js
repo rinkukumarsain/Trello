@@ -5,10 +5,15 @@ const { statusCode } = require('../config/default.json');
 // Create Card
 exports.createCard = async (req) => {
   try {
-    const { title, description, list, board, assigned_to, attachment } = req.body;
+    const { title, description, list, listId, board, boardId, assigned_to, attachment } = req.body;
     const user = req.auth;
+    
+    // Support both parameter names
+    const actualListId = list || listId;
+    const actualBoardId = board || boardId;
+    
     // Basic validation
-    if (!title || !list || !board) {
+    if (!title || !actualListId || !actualBoardId) {
       return {
         success: false,
         message: 'Title, list, and board are required fields.',
@@ -17,8 +22,8 @@ exports.createCard = async (req) => {
     const newCard = new Card({
       title,
       description,
-      list,
-      board,
+      list: actualListId,
+      board: actualBoardId,
       assigned_to,
       attachment,
       created_by: user._id,
@@ -40,13 +45,25 @@ exports.createCard = async (req) => {
   }
 };
 
-// View Cards (all or by boardId)
+// View Cards (all or by listId/boardId)
 exports.viewCard = async (req) => {
   try {
-    const { boardId } = req.query;
+    const { listId } = req.params; // Get listId from URL params
+    const { boardId } = req.query; // Get boardId from query params
 
     const matchStage = {};
-    if (boardId) {
+    
+    // Priority: listId from params, then boardId from query
+    if (listId) {
+      if (!mongoose.Types.ObjectId.isValid(listId)) {
+        return {
+          statusCode: statusCode.BAD_REQUEST,
+          success: false,
+          message: "Invalid list ID"
+        };
+      }
+      matchStage.list = new mongoose.Types.ObjectId(listId);
+    } else if (boardId) {
       if (!mongoose.Types.ObjectId.isValid(boardId)) {
         return {
           statusCode: statusCode.BAD_REQUEST,

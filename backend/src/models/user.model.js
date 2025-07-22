@@ -38,7 +38,7 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: "active",
   },
-  board: [
+  boards: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Board",    

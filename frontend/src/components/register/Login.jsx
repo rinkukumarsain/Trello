@@ -22,12 +22,11 @@ const Login = () => {
 
     try {
       const response = await axios.post('http://localhost:4000/api/login', formData); 
-      console.log(response);
       const { token, user } = response.data;
       if (token) {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
-        navigate('/board');
+        navigate('/board'); // Navigate to boards list
       }
     } catch (err) {
       const message = err.response?.data?.message || 'Login failed. Please try again.';
