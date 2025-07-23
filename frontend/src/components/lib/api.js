@@ -22,4 +22,5 @@ export const createCard = (data) => axiosInstance.post('/card', data);
 export const fetchCardsByList = (listId) => axiosInstance.get(`/card/${listId}`);
 export const updateCard = (id, data) => axiosInstance.put(`/card/${id}`, data);
 export const deleteCard = (id) => axiosInstance.delete(`/card/${id}`);
-
+export const commentCard = (id, text) =>
+  axiosInstance.post(`/card/${id}/comments`, { text });

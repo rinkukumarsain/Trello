@@ -56,3 +56,17 @@ exports.deleteCard = async (req, res) => {
     });
   }
 };
+
+exports.commentCard = async (req, res) => {
+  try {
+    const result = await services.addComment(req);
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+

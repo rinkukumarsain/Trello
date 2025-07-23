@@ -9,11 +9,12 @@ import Footer from "./components/pages/Footer.jsx";
 const App = () => {
   return (
     <Router>
+    
       <Routes>
         <Route path="/" element={<Login/>} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/board" element={<Board />} />  {/* All boards list */}
-        <Route path="/board/:id" element={<BoardDetail />} />  
+        <Route path="/board/:id" element={<BoardDetail />} />
         {/* <Route path="/activity" element={<Activity />} /> */}
         {/* <Route path="/label" element={<Label />} /> */}
       </Routes>

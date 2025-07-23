@@ -166,14 +166,19 @@ exports.deleteList = async (id) => {
       };
     }
 
-    await Board.findByIdAndUpdate(list.board, { $pull: { lists: id } });
-    await Card.deleteMany({ _id: { $in: list.cards } });
+    //  Delete cards by list reference, not list.cards array
+    await Card.deleteMany({ list: list._id });
+
+    // Remove list reference from its parent board
+    await Board.findByIdAndUpdate(list.board, { $pull: { lists: list._id } });
+
+    // Delete the list itself
     await List.findByIdAndDelete(id);
 
     return {
       statusCode: statusCode.OK,
       success: true,
-      message: "List deleted successfully",
+      message: "List and its cards deleted successfully",
     };
   } catch (error) {
     return {

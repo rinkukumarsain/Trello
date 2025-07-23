@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchBoardById, createList, updateList, deleteList, fetchListsByBoard } from '../lib/api';
 import List from '../list/List';
-import { Plus, ArrowLeft } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import Navbar from '../pages/Navbar';
+import BoardNavbar from './BoardNavbar';
 
 const BoardDetail = () => {
   const { id } = useParams();
@@ -19,14 +21,12 @@ const BoardDetail = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
-        // Fetch board details
+
         const boardResponse = await fetchBoardById(id);
         if (boardResponse.data.success) {
           setBoard(boardResponse.data.data);
         }
 
-        // Fetch lists for this board
         const listsResponse = await fetchListsByBoard(id);
         if (listsResponse.data.success) {
           setLists(listsResponse.data.data || []);
@@ -50,7 +50,7 @@ const BoardDetail = () => {
         title: newListTitle,
         boardId: id
       };
-      
+
       const response = await createList(listData);
       if (response.data.success) {
         setLists(prev => [...prev, response.data.data]);
@@ -93,8 +93,8 @@ const BoardDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center bg-black justify-center">
-        <div className="text-xl bg-black  text-gray-600">Loading board...</div>
-      </div> 
+        <div className="text-xl bg-black text-gray-600">Loading board...</div>
+      </div>
     );
   }
 
@@ -114,32 +114,13 @@ const BoardDetail = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 to-purple-500">
-      {/* Header */}
-      <div className="bg-blue-400 bg-opacity-20 backdrop-blur-sm border-b border-white border-opacity-30">
-        <div className="max-w-full px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate('/board')}
-                className="text-black hover:bg-gray-300 hover:bg-opacity-20 p-2 rounded transition-colors"
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <h1 className="text-2xl font-bold text-white">{board.title}</h1>
-            </div>
-            <div className="text-white text-sm">
-              <span>Owner: {board.owner?.first_name} {board.owner?.last_name}</span>
-              {board.members && board.members.length > 0 && (
-                <span className="ml-4">Members: {board.members.length}</span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <Navbar />
+      <BoardNavbar board={board} />
 
+      {/* List Section */}
       <div className="p-6">
         <div className="flex gap-4 overflow-x-auto pb-4">
-          {/* Existing Lists */}
+          {/* Lists */}
           {lists.map(list => (
             <List
               key={list._id}
@@ -150,21 +131,20 @@ const BoardDetail = () => {
             />
           ))}
 
-          {/* Add List Section */}
+          {/* Add List */}
           {showAddList ? (
-            <div className="bg-gray-100 rounded-lg p-3 w-72 flex-shrink-0">
+            <div className="bg-gray-300 rounded-lg p-3 w-72 flex-shrink-0">
               <input
                 type="text"
                 value={newListTitle}
                 onChange={(e) => setNewListTitle(e.target.value)}
                 placeholder="Enter list title..."
-                className="w-full p-2 border rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full text-black p-2 border rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 autoFocus
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     handleCreateList();
-                  }
-                  if (e.key === 'Escape') {
+                  } else if (e.key === 'Escape') {
                     setShowAddList(false);
                     setNewListTitle('');
                   }
@@ -174,7 +154,7 @@ const BoardDetail = () => {
                 <button
                   onClick={handleCreateList}
                   disabled={createLoading || !newListTitle.trim()}
-                  className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 disabled:opacity-50"
+                  className="bg-blue-900 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 disabled:opacity-50"
                 >
                   {createLoading ? 'Adding...' : 'Add List'}
                 </button>
@@ -183,7 +163,7 @@ const BoardDetail = () => {
                     setShowAddList(false);
                     setNewListTitle('');
                   }}
-                  className="text-gray-500 px-3 py-1 rounded text-sm hover:bg-gray-200"
+                  className="bg-red-500 px-3 py-1 rounded text-sm hover:bg-red-400"
                 >
                   Cancel
                 </button>
@@ -192,7 +172,7 @@ const BoardDetail = () => {
           ) : (
             <button
               onClick={() => setShowAddList(true)}
-              className="bg-gray-600 bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg p-3 w-72 flex-shrink-0 flex items-center gap-2 transition-colors"
+              className="bg-gray-600 bg-opacity-20 hover:bg-opacity-30 text-white justify-center rounded-lg p-3 w-72 flex-shrink-0 flex items-center gap-2 transition-colors"
             >
               <Plus size={16} />
               Add another list

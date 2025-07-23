@@ -45,6 +45,8 @@ router.post('/card', auth, authorize(['admin','member']), cardController.createC
 router.get('/card/:listId', auth, authorize(['admin','member']), cardController.viewCard);
 router.put('/card/:id', auth, authorize(['admin','member']), cardController.updateCard);
 router.delete('/card/:id', auth, authorize(['admin','member']), cardController.deleteCard);
+router.post('/card/:id/comments', auth, authorize(['admin','member']), cardController.commentCard);
+
 
 // ========== Activity Routes ==========
 router.post('/activity', auth, authorize(['admin','member']), activityController.createActivity);

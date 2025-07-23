@@ -1,17 +1,17 @@
-const Card = require('../models/card.model');
 const mongoose = require('mongoose');
+const Card = require('../models/card.model');
+const List = require('../models/list.model');
 const { statusCode } = require('../config/default.json');
 
-// Create Card
+// ========== Create Card ==========
 exports.createCard = async (req) => {
   try {
     const { title, description, list, listId, board, boardId, assigned_to, attachment } = req.body;
     const user = req.auth;
-    
-    // Support both parameter names
+
     const actualListId = list || listId;
     const actualBoardId = board || boardId;
-    
+
     // Basic validation
     if (!title || !actualListId || !actualBoardId) {
       return {
@@ -19,6 +19,8 @@ exports.createCard = async (req) => {
         message: 'Title, list, and board are required fields.',
       };
     }
+
+    // Create the card
     const newCard = new Card({
       title,
       description,
@@ -30,6 +32,12 @@ exports.createCard = async (req) => {
     });
 
     const savedCard = await newCard.save();
+
+    // Push the card ID to the corresponding list
+    await List.findByIdAndUpdate(actualListId, {
+      $push: { cards: savedCard._id },
+    });
+
     return {
       success: true,
       message: 'Card created successfully',
@@ -45,15 +53,14 @@ exports.createCard = async (req) => {
   }
 };
 
-// View Cards (all or by listId/boardId)
+// ========== View Cards ==========
 exports.viewCard = async (req) => {
   try {
-    const { listId } = req.params; // Get listId from URL params
-    const { boardId } = req.query; // Get boardId from query params
+    const { listId } = req.params;
+    const { boardId } = req.query;
 
     const matchStage = {};
-    
-    // Priority: listId from params, then boardId from query
+
     if (listId) {
       if (!mongoose.Types.ObjectId.isValid(listId)) {
         return {
@@ -154,11 +161,19 @@ exports.viewCard = async (req) => {
   }
 };
 
-// Update Card
+// ========== Update Card ==========
 exports.updateCard = async (req) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return {
+        statusCode: statusCode.BAD_REQUEST,
+        success: false,
+        message: "Invalid card ID"
+      };
+    }
 
     const card = await Card.findByIdAndUpdate(id, updateData, { new: true });
 
@@ -186,13 +201,20 @@ exports.updateCard = async (req) => {
   }
 };
 
-// Delete Card
+// ========== Delete Card ==========
 exports.deleteCard = async (req) => {
   try {
     const { id } = req.params;
 
-    const card = await Card.findByIdAndDelete(id);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return {
+        statusCode: statusCode.BAD_REQUEST,
+        success: false,
+        message: "Invalid card ID"
+      };
+    }
 
+    const card = await Card.findById(id);
     if (!card) {
       return {
         statusCode: statusCode.NOT_FOUND,
@@ -200,6 +222,14 @@ exports.deleteCard = async (req) => {
         message: "Card not found"
       };
     }
+
+    // Remove card ID from list.cards
+    await List.findByIdAndUpdate(card.list, {
+      $pull: { cards: card._id },
+    });
+
+    // Now delete the card
+    await Card.findByIdAndDelete(id);
 
     return {
       statusCode: statusCode.SUCCESS,
@@ -212,6 +242,53 @@ exports.deleteCard = async (req) => {
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message
+    };
+  }
+};
+
+// ========== Add Comment ==========
+exports.addComment = async (req) => {
+  try {
+    const { id } = req.params;
+    const { text } = req.body;
+    const user = req.auth;
+
+    if (!text) {
+      return {
+        statusCode: statusCode.BAD_REQUEST,
+        success: false,
+        message: "Comment text is required",
+      };
+    }
+
+    const card = await Card.findById(id);
+    if (!card) {
+      return {
+        statusCode: statusCode.NOT_FOUND,
+        success: false,
+        message: "Card not found",
+      };
+    }
+
+    const newComment = {
+      text,
+      created_by: user._id,
+    };
+
+    card.comments.push(newComment); // or .unshift(newComment) for latest-first
+    await card.save();
+
+    return {
+      statusCode: statusCode.SUCCESS,
+      success: true,
+      message: "Comment added successfully",
+      data: card,
+    };
+  } catch (error) {
+    return {
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
     };
   }
 };

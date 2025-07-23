@@ -1,28 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { createCard, fetchCardsByList, updateCard, deleteCard, updateList } from '../lib/api';
+import { createCard, fetchCardsByList, updateCard, deleteCard } from '../lib/api';
 import { Plus, X, Edit2 } from 'lucide-react';
+import CardModal from '../card/CardModel';
 
-const List = ({ list, boardId, onUpdateList, onDeleteList }) => {
+const List = ({ list, boardId, onDeleteList }) => {
   const [cards, setCards] = useState(list.cards || []);
   const [newCardTitle, setNewCardTitle] = useState('');
   const [showAddCard, setShowAddCard] = useState(false);
   const [editingCard, setEditingCard] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // Fetch cards for this list
-  const fetchCards = async () => {
-    try {
-      const response = await fetchCardsByList(list._id);
-      if (response.data.success) {
-        setCards(response.data.data || []);
-      }
-    } catch (error) {
-      console.error('Error fetching cards:', error);
-      setCards([]);
-    }
-  };
+  const [openModalCard, setOpenModalCard] = useState(null);
 
   useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const response = await fetchCardsByList(list._id);
+        if (response.data.success) {
+          setCards(response.data.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching cards:', error);
+        setCards([]);
+      }
+    };
+
     fetchCards();
   }, [list._id]);
 
@@ -36,7 +37,7 @@ const List = ({ list, boardId, onUpdateList, onDeleteList }) => {
         listId: list._id,
         boardId: boardId
       };
-      
+
       const response = await createCard(cardData);
       if (response.data.success) {
         setCards(prev => [...prev, response.data.data]);
@@ -50,14 +51,14 @@ const List = ({ list, boardId, onUpdateList, onDeleteList }) => {
     }
   };
 
-  const handleUpdateCard = async (cardId, newTitle, description = '') => {
+  const handleUpdateCard = async (cardId, newTitle) => {
     try {
-      const response = await updateCard(cardId, { title: newTitle, description });
+      const response = await updateCard(cardId, { title: newTitle });
       if (response.data.success) {
-        setCards(prev => 
-          prev.map(card => 
-            card._id === cardId 
-              ? { ...card, title: newTitle, description }
+        setCards(prev =>
+          prev.map(card =>
+            card._id === cardId
+              ? { ...card, title: newTitle }
               : card
           )
         );
@@ -80,7 +81,6 @@ const List = ({ list, boardId, onUpdateList, onDeleteList }) => {
 
   return (
     <div className="bg-gray-100 rounded-lg p-3 w-72 flex-shrink-0">
-      {/* List Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold text-gray-800">{list.title}</h3>
         <button
@@ -91,7 +91,6 @@ const List = ({ list, boardId, onUpdateList, onDeleteList }) => {
         </button>
       </div>
 
-      {/* Cards */}
       <div className="space-y-2 mb-3">
         {cards.map(card => (
           <Card
@@ -101,13 +100,13 @@ const List = ({ list, boardId, onUpdateList, onDeleteList }) => {
             onDelete={handleDeleteCard}
             editingCard={editingCard}
             setEditingCard={setEditingCard}
+            onOpenModal={() => setOpenModalCard(card)}
           />
         ))}
       </div>
 
-      {/* Add Card Section */}
       {showAddCard ? (
-        <div className="bg-white rounded p-2 shadow">
+        <div className="bg-gray-100 rounded p-2 shadow">
           <textarea
             value={newCardTitle}
             onChange={(e) => setNewCardTitle(e.target.value)}
@@ -144,27 +143,32 @@ const List = ({ list, boardId, onUpdateList, onDeleteList }) => {
           Add a card
         </button>
       )}
+
+      {/* Card Modal */}
+      {openModalCard && (
+        <CardModal
+          card={openModalCard}
+          listName={list.title}
+          onClose={() => setOpenModalCard(null)}
+        />
+      )}
     </div>
   );
 };
 
-// Card component
-const Card = ({ card, onUpdate, onDelete, editingCard, setEditingCard }) => {
+const Card = ({ card, onUpdate, onDelete, editingCard, setEditingCard, onOpenModal }) => {
   const [title, setTitle] = useState(card.title);
-  const [description, setDescription] = useState(card.description || '');
+  const isEditing = editingCard === card._id;
 
   const handleSave = () => {
-    onUpdate(card._id, title, description);
+    onUpdate(card._id, title);
     setEditingCard(null);
   };
 
   const handleCancel = () => {
     setTitle(card.title);
-    setDescription(card.description || '');
     setEditingCard(null);
   };
-
-  const isEditing = editingCard === card._id;
 
   return (
     <div className="bg-white rounded shadow p-2 hover:shadow-md transition-shadow">
@@ -175,13 +179,6 @@ const Card = ({ card, onUpdate, onDelete, editingCard, setEditingCard }) => {
             onChange={(e) => setTitle(e.target.value)}
             className="w-full p-1 border rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             autoFocus
-          />
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Add a description..."
-            className="w-full p-1 border rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-            rows="2"
           />
           <div className="flex gap-2 mt-2">
             <button
@@ -199,31 +196,27 @@ const Card = ({ card, onUpdate, onDelete, editingCard, setEditingCard }) => {
           </div>
         </div>
       ) : (
-        <div>
-          <div className="flex justify-between items-start">
-            <div
-              onClick={() => setEditingCard(card._id)}
-              className="flex-1 cursor-pointer"
+        <div className="flex justify-between items-start cursor-pointer" onClick={onOpenModal}>
+          <h4 className="text-sm font-medium text-gray-800">{card.title}</h4>
+          <div className="flex gap-1 ml-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditingCard(card._id);
+              }}
+              className="text-gray-400 hover:text-gray-600 p-1"
             >
-              <h4 className="text-sm font-medium text-gray-800">{card.title}</h4>
-              {card.description && (
-                <p className="text-xs text-gray-600 mt-1">{card.description}</p>
-              )}
-            </div>
-            <div className="flex gap-1 ml-2">
-              <button
-                onClick={() => setEditingCard(card._id)}
-                className="text-gray-400 hover:text-gray-600 p-1"
-              >
-                <Edit2 size={12} />
-              </button>
-              <button
-                onClick={() => onDelete(card._id)}
-                className="text-gray-400 hover:text-red-500 p-1"
-              >
-                <X size={12} />
-              </button>
-            </div>
+              <Edit2 size={12} />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(card._id);
+              }}
+              className="text-gray-400 hover:text-red-500 p-1"
+            >
+              <X size={12} />
+            </button>
           </div>
         </div>
       )}
