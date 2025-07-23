@@ -80,12 +80,12 @@ const List = ({ list, boardId, onDeleteList }) => {
   };
 
   return (
-    <div className="bg-gray-100 rounded-lg p-3 w-72 flex-shrink-0">
+    <div className="bg-black rounded-lg p-3 w-72 flex-shrink-0">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-gray-800">{list.title}</h3>
+        <h3 className="font-semibold text-gray-500">{list.title}</h3>
         <button
           onClick={() => onDeleteList(list._id)}
-          className="text-gray-500 hover:text-red-500 p-1"
+          className="text-gray-400 hover:text-red-500 p-1"
         >
           <X size={16} />
         </button>
@@ -106,12 +106,12 @@ const List = ({ list, boardId, onDeleteList }) => {
       </div>
 
       {showAddCard ? (
-        <div className="bg-gray-100 rounded p-2 shadow">
+        <div className="bg-gray-800 rounded p-2 shadow">
           <textarea
             value={newCardTitle}
             onChange={(e) => setNewCardTitle(e.target.value)}
             placeholder="Enter a title for this card..."
-            className="w-full p-2 border rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2 border placeholder:text-gray-400 rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             rows="2"
             autoFocus
           />
@@ -137,7 +137,7 @@ const List = ({ list, boardId, onDeleteList }) => {
       ) : (
         <button
           onClick={() => setShowAddCard(true)}
-          className="w-full text-left text-gray-500 hover:bg-gray-200 rounded p-2 flex items-center gap-2"
+          className="w-full text-left text-gray-500 hover:bg-gray-600 rounded-xl p-2 flex items-center gap-2"
         >
           <Plus size={16} />
           Add a card
