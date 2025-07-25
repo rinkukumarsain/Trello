@@ -9,6 +9,7 @@ const listController = require('../controllers/listController');
 const cardController = require('../controllers/cardController');
 const labelController = require('../controllers/labelController');
 const userController = require('../controllers/userController');
+// const memberController = require('../controllers/memberController');
 // const userDataController = require('../controllers/UserDataController');
 
 // Middleware
@@ -33,7 +34,14 @@ router.post('/board', auth,authorize(['admin','member']),boardController.createB
 router.put('/board/:id', auth,authorize(['admin','member']),boardController.updateBoard);
 router.delete('/board/:id', auth,authorize(['admin','member']), boardController.deleteBoard);
 
+// ========== Member Routes ==========
+router.get('/board/:id/members',auth,authorize(['admin','member']),boardController.viewMember);
+router.post('/board/:id/members',auth, authorize(['admin', 'member']), boardController.createMember);
+router.delete('/board/:id/members/:memberId',auth, authorize(['admin', 'member']),boardController.deleteMember);
+
+
 // ========== List Routes ==========
+
 router.post('/list', auth, authorize(['admin','member']), listController.createList);
 router.get('/list', auth, authorize(['admin','member']), listController.viewList);
 router.get('/list/:boardId', auth, authorize(['admin','member']), listController.Board);
@@ -45,7 +53,10 @@ router.post('/card', auth, authorize(['admin','member']), cardController.createC
 router.get('/card/:listId', auth, authorize(['admin','member']), cardController.viewCard);
 router.put('/card/:id', auth, authorize(['admin','member']), cardController.updateCard);
 router.delete('/card/:id', auth, authorize(['admin','member']), cardController.deleteCard);
+
+// ========== Comment Routes ==========
 router.post('/card/:id/comments', auth, authorize(['admin','member']), cardController.commentCard);
+router.get('/card/:id/comments', auth, authorize(['admin','member']), cardController.getCommentCard);
 
 
 // ========== Activity Routes ==========

@@ -111,7 +111,7 @@ const List = ({ list, boardId, onDeleteList }) => {
             value={newCardTitle}
             onChange={(e) => setNewCardTitle(e.target.value)}
             placeholder="Enter a title for this card..."
-            className="w-full p-2 border placeholder:text-gray-400 rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2 border text-gray-400 placeholder:text-gray-400 rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
             rows="2"
             autoFocus
           />
@@ -128,7 +128,7 @@ const List = ({ list, boardId, onDeleteList }) => {
                 setShowAddCard(false);
                 setNewCardTitle('');
               }}
-              className="text-gray-500 px-3 py-1 rounded text-sm hover:bg-gray-200"
+              className="text-gray-200 px-3 py-1 rounded text-sm hover:bg-gray-500"
             >
               Cancel
             </button>
@@ -171,7 +171,7 @@ const Card = ({ card, onUpdate, onDelete, editingCard, setEditingCard, onOpenMod
   };
 
   return (
-    <div className="bg-white rounded shadow p-2 hover:shadow-md transition-shadow">
+    <div className="bg-gray-500 rounded shadow p-2 hover:shadow-md transition-shadow">
       {isEditing ? (
         <div>
           <input
@@ -183,7 +183,7 @@ const Card = ({ card, onUpdate, onDelete, editingCard, setEditingCard, onOpenMod
           <div className="flex gap-2 mt-2">
             <button
               onClick={handleSave}
-              className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600"
+              className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600"
             >
               Save
             </button>

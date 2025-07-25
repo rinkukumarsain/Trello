@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   X,
   ChevronDown,
@@ -9,10 +9,34 @@ import {
 } from "lucide-react";
 import CardDescriptionSection from "./CardDescription";
 import CardCommentsSection from "./CardComment";
+import { fetchComments } from "../lib/api";
 
-const CardModal = ({ listName = "Completed", card, onClose }) => {
+const CardModel = ({ listName = "Completed", card, onClose }) => {
   const [description, setDescription] = useState(card?.description || "");
-  const [comments, setComments] = useState(card?.comments || []);
+  const [comments, setComments] = useState([]);
+  const [loadingComments, setLoadingComments] = useState(true);
+
+  // Fetch comments when modal opens
+  useEffect(() => {
+    const getComments = async () => {
+      if (card?._id) {
+        try {
+          setLoadingComments(true);
+          const response = await fetchComments(card._id);
+          if (response.data.success) {
+            setComments(response.data.data || []);
+          }
+        } catch (error) {
+          console.error('Error fetching comments:', error);
+          setComments([]);
+        } finally {
+          setLoadingComments(false);
+        }
+      }
+    };
+
+    getComments();
+  }, [card?._id]);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -61,7 +85,7 @@ const CardModal = ({ listName = "Completed", card, onClose }) => {
 
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-white hover:text-red-500"
+          className="absolute top-3 right-3 text-white hover:text-red-500"
         >
           <X size={20} />
         </button>
@@ -70,4 +94,4 @@ const CardModal = ({ listName = "Completed", card, onClose }) => {
   );
 };
 
-export default CardModal;
+export default CardModel;

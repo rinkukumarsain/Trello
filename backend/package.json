@@ -23,6 +23,7 @@
     "lucide-react": "^0.525.0",
     "mongoose": "^8.16.1",
     "mongoose-geojson-schema": "^2.2.6",
+    "nodemailer": "^7.0.5",
     "nodemon": "^3.1.10",
     "socket": "^1.0.21",
     "socket.io": "^4.8.1"

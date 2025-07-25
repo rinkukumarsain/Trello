@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import trello from '../../assets/trello.png';
 import { Search, Bell, HelpCircle, Megaphone, Grid } from 'lucide-react';
 
@@ -8,12 +8,41 @@ const Navbar = ({
   handleCreateBoard,
   createLoading,
 }) => {
+  const [user, setUser] = useState(null);
+  
+  // Get user data from localStorage on component mount
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        setUser(null);
+      }
+    }
+  }, []);
+  
+  const getUserInitials = () => {
+    if (!user) return 'U'; // Default fallback
+    
+    const firstName = user.first_name || '';
+    const lastName = user.last_name || '';
+    
+    if (!firstName && !lastName) return 'U';
+    
+    const firstInitial = firstName.charAt(0).toUpperCase();
+    const lastInitial = lastName.charAt(0).toUpperCase();
+    
+    return firstInitial + lastInitial;
+  };
+
   return (
     <nav className="w-full px-4 py-2 bg-gray-900 text-white shadow-md z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between relative">
         {/* Left: Sidebar + Logo */}
         <div className="flex items-center gap-2">
-          <button className=" rounded hover:bg-gray-700">
+          <button className="rounded hover:bg-gray-700">
             <Grid size={22} />
           </button>
           <img src={trello} alt="Trello Logo" className="w-18" />
@@ -56,7 +85,7 @@ const Navbar = ({
             <HelpCircle size={16} />
           </button>
           <div className="bg-red-600 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold">
-            SJ
+            {getUserInitials()}
           </div>
         </div>
       </div>

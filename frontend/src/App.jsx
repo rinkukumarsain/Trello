@@ -9,7 +9,6 @@ import Footer from "./components/pages/Footer.jsx";
 const App = () => {
   return (
     <Router>
-    
       <Routes>
         <Route path="/" element={<Login/>} />
         <Route path="/signup" element={<Signup />} />

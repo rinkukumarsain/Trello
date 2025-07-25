@@ -133,13 +133,13 @@ const BoardDetail = () => {
 
           {/* Add List */}
           {showAddList ? (
-            <div className="bg-gray-300 rounded-lg p-3 w-72 flex-shrink-0">
+            <div className="bg-black rounded-lg p-3 w-72 flex-shrink-0">
               <input
                 type="text"
                 value={newListTitle}
                 onChange={(e) => setNewListTitle(e.target.value)}
                 placeholder="Enter list title..."
-                className="w-full text-black p-2 border rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full text-gray-300 p-2 border rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {

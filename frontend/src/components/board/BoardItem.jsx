@@ -62,13 +62,13 @@ const BoardItem = ({ board, onUpdate, onDelete, isDetailView = false }) => {
   };
 
   return (
- <div className="w-64 bg-white/10 border border-white/20 backdrop-blur-md rounded-xl shadow-md p-3 transition hover:shadow-xl">
+ <div className="w-64 bg-black border border-white/20 backdrop-blur-md rounded-xl shadow-md p-3 transition hover:shadow-xl">
   <div className="flex flex-col gap-2">
     <div className="relative group">
       <img
         src={Image}
         alt="Board"
-        className="h-28 w-full object-cover rounded-md shadow"
+        className="h-24 w-full object-cover rounded-md shadow"
       />
 
       <Star

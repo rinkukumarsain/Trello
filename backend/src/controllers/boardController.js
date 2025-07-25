@@ -68,3 +68,41 @@ exports.deleteBoard = async (req, res) => {
     });
   }
 };
+
+exports.createMember = async (req, res) => {
+  try {
+    const result = await services.createMember(req);
+    res.status(200).json(result);
+  } catch (error) {
+  return res.status(500).json({
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+exports.viewMember = async (req, res) => {
+  try {
+    
+    const result = await services.viewMember(req);
+    res.status(201).json(result);
+  } catch (error) {
+  return res.status(500).json({
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+exports.deleteMember = async (req, res) => {
+  try {
+    const result = await services.deleteMember(req);
+    res.status(201).json(result);
+  } catch (error) {
+  return res.status(500).json({
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+    });
+  }
+};

@@ -273,17 +273,106 @@ exports.addComment = async (req) => {
     const newComment = {
       text,
       created_by: user._id,
+      created_at: new Date()
     };
 
-    card.comments.push(newComment); // or .unshift(newComment) for latest-first
+    card.comments.push(newComment);
     await card.save();
+
+    // Fetch all comments with user information
+    const result = await Card.aggregate([
+      { $match: { _id: card._id } },
+      { $unwind: "$comments" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "comments.created_by",
+          foreignField: "_id",
+          as: "commentUser"
+        }
+      },
+      { $unwind: "$commentUser" },
+      {
+        $project: {
+          _id: 0,
+          text: "$comments.text",
+          created_at: "$comments.created_at",
+          first_name: "$commentUser.first_name",
+          last_name: "$commentUser.last_name"
+        }
+      },
+      { $sort: { created_at: -1 } }
+    ]);
 
     return {
       statusCode: statusCode.SUCCESS,
       success: true,
       message: "Comment added successfully",
-      data: card,
+      data: {
+        comments: result
+      }
     };
+  } catch (error) {
+    return {
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+    };
+  }
+};
+
+exports.getComment = async (req) => {
+  try {
+    const { id } = req.params;
+
+    const card = await Card.findById(id);
+    if (!card) {
+      return {
+        statusCode: statusCode.NOT_FOUND,
+        success: false,
+        message: "Card not found",
+      };
+    }
+
+    const result = await Card.aggregate([
+      { $match: { _id: card._id } },
+      { $unwind: "$comments" },
+      {
+        $lookup: {
+          from: "users",
+          localField: "comments.created_by",
+          foreignField: "_id",
+          as: "commentUser"
+        }
+      },
+      { $unwind: "$commentUser" },
+      {
+        $addFields: {
+          text: "$comments.text",
+          created_at: "$comments.created_at",
+          first_name: "$commentUser.first_name",
+          last_name: "$commentUser.last_name"
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          text: 1,
+          created_at: 1,
+          first_name: 1,
+          last_name: 1
+        }
+      },
+      { $sort: { created_at: -1 } } // <- fixed comma and ordering
+    ]);
+
+    return {
+      statusCode: statusCode.SUCCESS,
+      success: true,
+      message: "Comments fetched successfully",
+      data: result
+    };
+
   } catch (error) {
     return {
       statusCode: statusCode.INTERNAL_SERVER_ERROR,
