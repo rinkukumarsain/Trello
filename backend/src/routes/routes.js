@@ -9,6 +9,7 @@ const listController = require('../controllers/listController');
 const cardController = require('../controllers/cardController');
 const labelController = require('../controllers/labelController');
 const userController = require('../controllers/userController');
+const mailController = require('../controllers/mailController');
 // const memberController = require('../controllers/memberController');
 // const userDataController = require('../controllers/UserDataController');
 
@@ -21,6 +22,7 @@ const { auth, authorize }  = require('../middleware/auth');
 // router.get('/user/:id', auth, authorize('user', 'view'), userDataController.viewUserById);
 
 // ========== login SignUp and Profile Route  ==========
+
 
 router.post('/login', userController.login);
 router.post('/signup',userController.signup);
@@ -44,9 +46,10 @@ router.delete('/board/:id/members/:memberId',auth, authorize(['admin', 'member']
 
 router.post('/list', auth, authorize(['admin','member']), listController.createList);
 router.get('/list', auth, authorize(['admin','member']), listController.viewList);
-router.get('/list/:boardId', auth, authorize(['admin','member']), listController.Board);
+router.get('/list/:boardId', auth, authorize(['admin','member']), listController.board);
 router.put('/list/:id', auth, authorize(['admin','member']), listController.updateList);
 router.delete('/list/:id', auth, authorize(['admin','member']), listController.deleteList);
+// router.post('/list/drag/:id', auth, authorize(['admin','member']), listController.dragList);
 
 // ========== Card Routes ==========
 router.post('/card', auth, authorize(['admin','member']), cardController.createCard);
@@ -58,6 +61,8 @@ router.delete('/card/:id', auth, authorize(['admin','member']), cardController.d
 router.post('/card/:id/comments', auth, authorize(['admin','member']), cardController.commentCard);
 router.get('/card/:id/comments', auth, authorize(['admin','member']), cardController.getCommentCard);
 
+// ========== Mail Routes ==========
+router.post('/send-mail', auth, authorize(['admin']),mailController.mailRequest);
 
 // ========== Activity Routes ==========
 router.post('/activity', auth, authorize(['admin','member']), activityController.createActivity);

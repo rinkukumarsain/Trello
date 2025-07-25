@@ -1,6 +1,6 @@
 const services = require('../services/listService');
 const { statusCode } = require('../config/default.json');
-const viewBoard = require('../services/boardService');
+// const viewBoard = require('../services/boardService');
 
 exports.createList = async (req, res) => {
   try {
@@ -28,7 +28,7 @@ exports.viewList = async (req, res) => {
   }
 };
 
-exports.Board = async (req, res) => {
+exports.board = async (req, res) => {
   try {
     const result = await services.viewBoard(req);
     res.status(200).json(result);
@@ -60,6 +60,19 @@ exports.updateList = async (req, res) => {
 exports.deleteList = async (req, res) => {
   try {
     const result = await services.deleteList(req.params.id);
+    
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      statusCode: statusCode.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+    });
+  }
+};
+exports.dragList = async (req, res) => {
+  try {
+    const result = await services.dragList(req.params.id);
     
     res.status(200).json(result);
   } catch (error) {

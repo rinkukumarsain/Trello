@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { createCard, fetchCardsByList, updateCard, deleteCard } from '../lib/api';
 import { Plus, X, Edit2 } from 'lucide-react';
 import CardModal from '../card/CardModel';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 
-const List = ({ list, boardId, onDeleteList }) => {
+const List = ({ list, boardId, onDeleteList, updateListCards }) => {
   const [cards, setCards] = useState(list.cards || []);
   const [newCardTitle, setNewCardTitle] = useState('');
   const [showAddCard, setShowAddCard] = useState(false);
@@ -11,12 +12,24 @@ const List = ({ list, boardId, onDeleteList }) => {
   const [loading, setLoading] = useState(false);
   const [openModalCard, setOpenModalCard] = useState(null);
 
+  // Sync cards with parent state when list.cards changes
+  useEffect(() => {
+    if (list.cards) {
+      setCards(list.cards);
+    }
+  }, [list.cards]);
+
   useEffect(() => {
     const fetchCards = async () => {
       try {
         const response = await fetchCardsByList(list._id);
         if (response.data.success) {
-          setCards(response.data.data || []);
+          const fetchedCards = response.data.data || [];
+          setCards(fetchedCards);
+          // Update parent state with fetched cards
+          if (updateListCards) {
+            updateListCards(list._id, fetchedCards);
+          }
         }
       } catch (error) {
         console.error('Error fetching cards:', error);
@@ -24,8 +37,11 @@ const List = ({ list, boardId, onDeleteList }) => {
       }
     };
 
-    fetchCards();
-  }, [list._id]);
+    // Only fetch if we don't have cards from parent
+    if (!list.cards || list.cards.length === 0) {
+      fetchCards();
+    }
+  }, [list._id, list.cards, updateListCards]);
 
   const handleAddCard = async () => {
     if (!newCardTitle.trim()) return;
@@ -40,7 +56,12 @@ const List = ({ list, boardId, onDeleteList }) => {
 
       const response = await createCard(cardData);
       if (response.data.success) {
-        setCards(prev => [...prev, response.data.data]);
+        const newCard = response.data.data;
+        setCards(prev => [...prev, newCard]);
+        // Update parent state as well
+        if (updateListCards) {
+          updateListCards(list._id, [...cards, newCard]);
+        }
         setNewCardTitle('');
         setShowAddCard(false);
       }
@@ -55,13 +76,16 @@ const List = ({ list, boardId, onDeleteList }) => {
     try {
       const response = await updateCard(cardId, { title: newTitle });
       if (response.data.success) {
-        setCards(prev =>
-          prev.map(card =>
-            card._id === cardId
-              ? { ...card, title: newTitle }
-              : card
-          )
+        const updatedCards = cards.map(card =>
+          card._id === cardId
+            ? { ...card, title: newTitle }
+            : card
         );
+        setCards(updatedCards);
+        // Update parent state as well
+        if (updateListCards) {
+          updateListCards(list._id, updatedCards);
+        }
       }
     } catch (error) {
       console.error('Error updating card:', error);
@@ -72,7 +96,12 @@ const List = ({ list, boardId, onDeleteList }) => {
     if (window.confirm('Are you sure you want to delete this card?')) {
       try {
         await deleteCard(cardId);
-        setCards(prev => prev.filter(card => card._id !== cardId));
+        const updatedCards = cards.filter(card => card._id !== cardId);
+        setCards(updatedCards);
+        // Update parent state as well
+        if (updateListCards) {
+          updateListCards(list._id, updatedCards);
+        }
       } catch (error) {
         console.error('Error deleting card:', error);
       }
@@ -91,19 +120,41 @@ const List = ({ list, boardId, onDeleteList }) => {
         </button>
       </div>
 
-      <div className="space-y-2 mb-3">
-        {cards.map(card => (
-          <Card
-            key={card._id}
-            card={card}
-            onUpdate={handleUpdateCard}
-            onDelete={handleDeleteCard}
-            editingCard={editingCard}
-            setEditingCard={setEditingCard}
-            onOpenModal={() => setOpenModalCard(card)}
-          />
-        ))}
-      </div>
+      <Droppable droppableId={list._id} type="CARD">
+        {(provided, snapshot) => (
+          <div
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+            className={`space-y-2 mb-3 min-h-[100px] ${
+              snapshot.isDraggingOver ? 'bg-gray-700 bg-opacity-30 rounded-lg p-2' : ''
+            }`}
+          >
+            {cards.map((card, index) => (
+              <Draggable key={card._id} draggableId={card._id} index={index}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    className={snapshot.isDragging ? 'transform rotate-1 shadow-lg' : ''}
+                  >
+                    <Card
+                      card={card}
+                      onUpdate={handleUpdateCard}
+                      onDelete={handleDeleteCard}
+                      editingCard={editingCard}
+                      setEditingCard={setEditingCard}
+                      onOpenModal={() => setOpenModalCard(card)}
+                      isDragging={snapshot.isDragging}
+                    />
+                  </div>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
 
       {showAddCard ? (
         <div className="bg-gray-800 rounded p-2 shadow">
@@ -160,14 +211,30 @@ const Card = ({ card, onUpdate, onDelete, editingCard, setEditingCard, onOpenMod
   const [title, setTitle] = useState(card.title);
   const isEditing = editingCard === card._id;
 
+  // Update local title when card.title changes
+  useEffect(() => {
+    setTitle(card.title);
+  }, [card.title]);
+
   const handleSave = () => {
-    onUpdate(card._id, title);
-    setEditingCard(null);
+    if (title.trim()) {
+      onUpdate(card._id, title);
+      setEditingCard(null);
+    }
   };
 
   const handleCancel = () => {
     setTitle(card.title);
     setEditingCard(null);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSave();
+    } else if (e.key === 'Escape') {
+      handleCancel();
+    }
   };
 
   return (
@@ -177,6 +244,7 @@ const Card = ({ card, onUpdate, onDelete, editingCard, setEditingCard, onOpenMod
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={handleKeyDown}
             className="w-full p-1 border rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             autoFocus
           />

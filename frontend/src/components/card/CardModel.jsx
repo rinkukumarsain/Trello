@@ -21,7 +21,7 @@ const CardModel = ({ listName = "Completed", card, onClose }) => {
     const getComments = async () => {
       if (card?._id) {
         try {
-          setLoadingComments(true);
+       
           const response = await fetchComments(card._id);
           if (response.data.success) {
             setComments(response.data.data || []);
@@ -76,11 +76,15 @@ const CardModel = ({ listName = "Completed", card, onClose }) => {
 
         {/* Right Side */}
         <div className="w-1/3 border-l border-gray-600 p-6">
-          <CardCommentsSection
-            card={card}
-            comments={comments}
-            setComments={setComments}
-          />
+          {loadingComments ? (
+            <div className="text-center text-gray-400">Loading comments...</div>
+          ) : (
+            <CardCommentsSection
+              card={card}
+              comments={comments}
+              setComments={setComments}
+            />
+          )}
         </div>
 
         <button
